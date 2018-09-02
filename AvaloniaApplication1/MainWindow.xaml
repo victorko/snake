@@ -1,0 +1,7 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:xx="clr-namespace:AvaloniaApplication1;assembly=AvaloniaApplication1"
+        Title="AvaloniaApplication1"
+        SizeToContent="WidthAndHeight">
+  <xx:SnakeCanvas />
+</Window>
