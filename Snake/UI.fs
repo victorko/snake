@@ -5,50 +5,65 @@ open Avalonia.Controls
 open Avalonia.Media
 open Avalonia.Themes.Default
 
-type SnakeCanvas() as this =
+type Key = Up | Down | Left | Right | Space
+
+type Shape =
+    | GreenSquare of int * int
+    | RedCircle of int * int
+
+[<AllowNullLiteral>]
+type SnakeCanvas(padding, cellSize, size) =
     inherit Canvas(
-        Width=568.,
-        Height=568.
+        Width = 3. * padding + (cellSize + padding) * float size,
+        Height = 3. * padding + (cellSize + padding) * float size
     )
 
-    let mutable squares = [
-        (8., 8.)
-    ]
-
-    do this.Tapped.Add (fun args -> 
-        let len = squares |> List.length |> float
-        squares <- squares @ (squares |> List.map (fun (x, y) -> (x + 14.* len, y + 14. * len))) 
-        this.InvalidateVisual())
+    let mutable shapes = list<Shape>.Empty
+    
+    member this.Redraw newShapes =
+        shapes <- newShapes
+        this.InvalidateVisual()
 
     override this.Render(context) =
         base.Render(context)
 
+        let coord a = padding + (cellSize + padding) * float a
+
         let borderPen = Pen(Colors.LightGray.ToUint32(), 2.)
-        let squareBrush = SolidColorBrush(Colors.Green)
+        let borderRect = Rect(padding, padding, coord size, coord size)
+        context.DrawRectangle(borderPen, borderRect)
 
-        context.DrawRectangle(borderPen, Rect(4., 4., 560., 560.))
+        let drawShape =                 
+            function
+            | GreenSquare (x, y) ->           
+                let rect = Rect(coord x, coord y, cellSize, cellSize)
+                context.FillRectangle(SolidColorBrush(Colors.Green), rect)
+            | RedCircle (x, y) -> 
+                let rect = Rect(coord x, coord y, cellSize, cellSize)
+                context.FillRectangle(SolidColorBrush(Colors.Red), rect, float32 (cellSize / 2.))
 
-        let drawSquare (x, y) = context.FillRectangle(squareBrush, Rect(x, y, 10., 10.))
-        List.iter drawSquare squares
+        List.iter drawShape shapes
 
 type App() =
     inherit Application()
     override this.Initialize() = 
         this.Styles.AddRange(DefaultTheme())   
 
-type SnakeUI() = 
+type SnakeUI(padding, cellSize, size) = 
     
     let mutable appBuilder: AppBuilder = null
     let mutable window: Window = null
+    let mutable canvas: SnakeCanvas = null
 
     do 
+        // it's really important to create these objects in such order
         appBuilder <- AppBuilder
             .Configure<App>()
             .UsePlatformDetect()
             .SetupWithoutStarting()
-
+        canvas <- SnakeCanvas(padding, cellSize, size)
         window <- Window(
-            Content=SnakeCanvas(),
+            Content=canvas,
             SizeToContent=SizeToContent.WidthAndHeight
         )
 
@@ -60,5 +75,7 @@ type SnakeUI() =
         window.KeyDown
         |> Observable.map (fun args -> args.Key)
 
-    //member this.Redraw 
+    member this.Redraw shapes = 
+        canvas.Redraw shapes
+
         
