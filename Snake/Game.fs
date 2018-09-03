@@ -16,7 +16,17 @@ type Board = {
 type StepResult =
     | Continue of Board
     | Stop of score: int
-    
+ 
+let newHead dir ps =
+    match dir, List.head ps with
+    | Up, (x, y) -> x, y - 1
+    | Down, (x, y) -> x, y + 1
+    | Left, (x, y) -> x - 1, y
+    | Right, (x, y) -> x + 1, y
+
+let eaten head board =
+    List.tryFind (fun f -> head = f) board.food
+
 let random = Random()
 
 let rec newFood size snake =
@@ -24,81 +34,64 @@ let rec newFood size snake =
     if List.contains p snake 
     then newFood size snake
     else p
-    
-let createBoard size foodNum =
-    let snake = [for i in 1..3 -> size / 2, size - i]   
-    {
-        dir = Up
-        snake = snake
-        food = List.init foodNum (fun _ -> newFood size snake)
-        size = size
-        score = 0
-    }
-    
-let getNewHead dir ps =
-    ps
-    |> List.head
-    |> match dir with
-        | Up -> fun (x, y) -> x, y - 1
-        | Down -> fun (x, y) -> x, y + 1
-        | Left -> fun (x, y) -> x - 1, y
-        | Right -> fun (x, y) -> x + 1, y
 
-let getEaten dir snake food =
-    let head' = getNewHead dir snake
-    List.tryFind (fun f -> head' = f) food    
+let updateFood foodPiece board =
+    let food' = 
+        newFood board.size board.snake :: board.food
+        |> List.filter (fun f -> f <> foodPiece)
+    { board with food = food' }
 
-let moveSnake dir eaten snake =
-    match eaten with
-    | Some f ->
-        f :: snake
-    | None ->
-        let head' = getNewHead dir snake
-        let tail' = snake |> List.rev |> List.tail |> List.rev
-        head' :: tail'
+let increaseScore board =
+    { board with score = board.score + 1}
 
-let updateFood dir eaten size snake food =
-    match eaten with
-    | Some f ->
-        List.filter (fun f' -> f' <> f) (newFood size snake :: food)             
-    | None ->
-        let head' = getNewHead dir snake
-        let tail' = snake |> List.rev |> List.tail |> List.rev
-        head' :: tail'
+let growSnake h board =
+    { board with snake = h :: board.snake }
 
-let updateScore eaten score = 
-    match eaten with
-    | Some _ -> score + 1            
-    | None -> score
+let moveSnake head' board =
+    let tail' = board.snake |> List.rev |> List.tail |> List.rev
+    { board with snake = head' :: tail' }
 
-let isCrash size ps =
-    let autoCrash p = List.sumBy (fun p' -> if p' = p then 1 else 0) ps > 1
-    let borderCrach (x, y) = x < 0 || x >= size || y < 0 || y >= size 
-    List.exists (fun p -> autoCrash p || borderCrach p) ps
+let continueGame = Continue
 
-let processNewDir dir board =
-    let eaten = getEaten dir board.snake board.food
-    let snake' = moveSnake dir eaten board.snake
-    if isCrash board.size snake' then 
+let isCrash board =    
+    let borderCrash = 
+        let outOfBorder (x, y) = x < 0 || x >= board.size || y < 0 || y >= board.size
+        List.exists outOfBorder board.snake
+    let autoCrash = 
+        board.snake 
+        |> List.allPairs board.snake 
+        |> List.exists (fun (a, b) -> a = b)    
+    borderCrash || autoCrash
+
+let stopOrContinueGame board =
+    if isCrash board then
         Stop board.score
-    else 
-        Continue {
-            dir = dir
-            snake = snake'
-            food = updateFood dir eaten board.size snake' board.food
-            size = board.size
-            score = updateScore eaten board.score
-        }
-    
+    else
+        Continue board
+
+let processStep dir board = 
+    let head' = newHead dir board.snake
+    match (eaten head' board) with
+    | Some foodPiece ->
+        board
+        |> updateFood foodPiece
+        |> increaseScore
+        |> growSnake head'
+        |> continueGame
+    | None ->
+        board
+        |> moveSnake head'
+        |> stopOrContinueGame
+
 let processTurn turn board =
     let canTurn =
         match turn with
         | Up | Down -> board.dir = Right || board.dir = Left
         | Right | Left -> board.dir = Up || board.dir = Down
     if canTurn then 
-        processNewDir turn board
+        processStep turn board
     else 
         Continue board
 
 let processTick board =
-    processNewDir board.dir board
+    processStep board.dir board
