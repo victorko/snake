@@ -1,4 +1,4 @@
-﻿module Snake.UI
+﻿namespace Snake.UI
 
 open Avalonia
 open Avalonia.Controls
