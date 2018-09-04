@@ -67,15 +67,15 @@ type SnakeUI(padding, cellSize, size) =
             Content=canvas,
             SizeToContent=SizeToContent.WidthAndHeight
         )
+        window.KeyBindings.Clear()
 
     member this.Start() =
         window.Show()
         appBuilder.Instance.Run(window)   
 
     member this.Keys = 
-        window.KeyDown
+        window.KeyDown //IJKL
         |> Observable.choose (fun args -> 
-            printfn "### %A" args.Key
             match args.Key with
             | Key.Space -> Some KeySpace
             | Key.Up -> Some KeyUp
