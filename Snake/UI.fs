@@ -4,8 +4,9 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.Media
 open Avalonia.Themes.Default
+open Avalonia.Input
 
-type Key = Up | Down | Left | Right | Space
+type Key = KeyUp | KeyDown | KeyLeft | KeyRight | KeySpace
 
 type Shape =
     | GreenSquare of int * int
@@ -69,11 +70,19 @@ type SnakeUI(padding, cellSize, size) =
 
     member this.Start() =
         window.Show()
-        appBuilder.Instance.Run(window)
+        appBuilder.Instance.Run(window)   
 
     member this.Keys = 
         window.KeyDown
-        |> Observable.map (fun args -> args.Key)
+        |> Observable.choose (fun args -> 
+            printfn "### %A" args.Key
+            match args.Key with
+            | Key.Space -> Some KeySpace
+            | Key.Up -> Some KeyUp
+            | Key.Down -> Some KeyDown
+            | Key.Right -> Some KeyRight
+            | Key.Left -> Some KeyLeft
+            | _ -> None)
 
     member this.Redraw shapes = 
         canvas.Redraw shapes
