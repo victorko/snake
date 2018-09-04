@@ -78,10 +78,10 @@ type SnakeUI(padding, cellSize, size) =
         |> Observable.choose (fun args -> 
             match args.Key with
             | Key.Space -> Some KeySpace
-            | Key.Up -> Some KeyUp
-            | Key.Down -> Some KeyDown
-            | Key.Right -> Some KeyRight
-            | Key.Left -> Some KeyLeft
+            | Key.I -> Some KeyUp
+            | Key.K -> Some KeyDown
+            | Key.L -> Some KeyRight
+            | Key.J -> Some KeyLeft
             | _ -> None)
 
     member this.Redraw shapes = 
