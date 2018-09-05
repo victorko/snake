@@ -4,6 +4,7 @@ module Snake.Program
 open Snake.UI
 open Snake.Game
 open System.Timers
+open System
 
 type GameState =
     | GameStop
@@ -17,15 +18,49 @@ type GameEvent =
 let ui = SnakeUI(2., 20., 20)
 let timer = new Timer(2000., AutoReset=true)
 
-let startGame () = ...
+let drawBoard board =
+    ui.Redraw (
+        List.map GreenSquare board.snake @  
+        List.map RedCircle board.food)
 
-let pauseGame board = ...
+let startGame () =
+    let board = newBoard 20 3
+    drawBoard board
+    timer.Start()
+    GameContinue board
 
-let  resumeGame board = ...
+let pauseGame board =
+    timer.Stop()
+    GamePause board
 
-let turn board key = ...
+let  resumeGame board = 
+    timer.Start()
+    GameContinue board
 
-let tick board = ...
+let dirOfKey =
+    function 
+    | KeyUp -> Up
+    | KeyDown -> Down
+    | KeyLeft -> Left
+    | KeyRight -> Right
+    | _ -> failwith "not direction key"
+
+let handleStepResult stepResult = 
+    match stepResult with
+    | Continue board -> 
+        drawBoard board
+        GameContinue board
+    | Stop score ->
+        ui.Redraw [] //todo
+        GameStop
+
+let turn board key =
+    processTurn (dirOfKey key) board
+    |> handleStepResult
+
+let tick board = 
+    processTick board
+    |> handleStepResult
 
 let gameCycle state event = 
     match state with    
@@ -46,12 +81,12 @@ let gameCycle state event =
 [<EntryPoint>]
 let main argv =   
     ui.Keys 
-    |> Observable.map (fun key -> KeyEvent key)
-    |> Observable.merge (
+    |> Event.map KeyEvent
+    |> Event.merge (
         timer.Elapsed 
-        |> Observable.map (fun _ -> TickEvent))
-    |> Observable.scan gameCycle GameStop
-    |> ignore
+        |> Event.map (fun _ -> TickEvent))
+    |> Event.scan gameCycle GameStop
+    |> ignore 
     
     ui.Start()    
     0

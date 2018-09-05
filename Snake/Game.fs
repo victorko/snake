@@ -83,6 +83,16 @@ let processStep dir board =
         |> moveSnake head'
         |> stopOrContinueGame
 
+let newBoard size foodSize = 
+    let snake = [for i in size..(size-3) -> (size / 2, i)]
+    {
+        dir = Up
+        snake = snake
+        food = List.init foodSize (fun _ -> newFood size snake)
+        size = size
+        score = 0
+    }
+
 let processTurn turn board =
     let canTurn =
         match turn with

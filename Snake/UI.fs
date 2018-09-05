@@ -75,7 +75,7 @@ type SnakeUI(padding, cellSize, size) =
 
     member this.Keys = 
         window.KeyDown //IJKL
-        |> Observable.choose (fun args -> 
+        |> Event.choose (fun args -> 
             match args.Key with
             | Key.Space -> Some KeySpace
             | Key.I -> Some KeyUp
