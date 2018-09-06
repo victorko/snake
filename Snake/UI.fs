@@ -46,9 +46,16 @@ type SnakeCanvas(padding, cellSize, size) =
             | Text text ->
                 let formattedText = 
                     FormattedText(
-                        Text = text
+                        Text = text,
+                        TextAlignment = TextAlignment.Center,
+                        Typeface = Typeface("Cursive", 30., FontStyle.Normal, FontWeight.Bold)
                     )
-                context.DrawText(SolidColorBrush(Colors.Black), Point(10., 10.), formattedText)
+                let textSize = formattedText.Measure()
+                let origin = 
+                    Point(
+                        (this.Width - textSize.Width) / 2., 
+                        (this.Height - textSize.Height) / 2.)
+                context.DrawText(SolidColorBrush(Colors.DarkSlateGray), origin, formattedText)
 
         List.iter drawShape shapes
 
@@ -81,7 +88,7 @@ type SnakeUI(padding, cellSize, size) =
         appBuilder.Instance.Run(window)   
 
     member this.Keys = 
-        window.KeyDown //IJKL
+        window.KeyDown
         |> Event.choose (fun args -> 
             match args.Key with
             | Key.Space -> Some KeySpace

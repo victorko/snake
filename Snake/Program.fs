@@ -50,7 +50,7 @@ let handleStepResult stepResult =
         drawBoard board
         GameContinue board
     | Stop score ->
-        ui.Redraw [Text ("Score: " + score.ToString())] //todo
+        ui.Redraw [Text ("SCORE: " + score.ToString())]
         GameStop
 
 let turn board key =
@@ -87,5 +87,6 @@ let main argv =
     |> Event.scan gameCycle GameStop
     |> ignore 
     
+    ui.Redraw([Text "CONTROL KEYS:\n<Space> - start/pause\n<I J K L> - turns "])
     ui.Start()    
     0
