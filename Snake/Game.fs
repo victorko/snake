@@ -58,9 +58,7 @@ let isCrash board =
         let outOfBorder (x, y) = x < 0 || x >= board.size || y < 0 || y >= board.size
         List.exists outOfBorder board.snake
     let autoCrash = 
-        board.snake 
-        |> List.allPairs board.snake 
-        |> List.exists (fun (a, b) -> a = b)    
+        (board.snake |> List.distinct |> List.length) < (board.snake |> List.length)   
     borderCrash || autoCrash
 
 let stopOrContinueGame board =
@@ -68,6 +66,8 @@ let stopOrContinueGame board =
         Stop board.score
     else
         Continue board
+
+let updateDir dir board = {board with dir = dir}
 
 let processStep dir board = 
     let head' = newHead dir board.snake
@@ -77,14 +77,16 @@ let processStep dir board =
         |> updateFood foodPiece
         |> increaseScore
         |> growSnake head'
+        |> updateDir dir
         |> continueGame
     | None ->
         board
         |> moveSnake head'
+        |> updateDir dir
         |> stopOrContinueGame
 
 let newBoard size foodSize = 
-    let snake = [for i in size..(size-3) -> (size / 2, i)]
+    let snake = [for i in (size-4) ..(size-1) -> (size / 2, i)]
     {
         dir = Up
         snake = snake

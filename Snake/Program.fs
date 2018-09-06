@@ -4,7 +4,6 @@ module Snake.Program
 open Snake.UI
 open Snake.Game
 open System.Timers
-open System
 
 type GameState =
     | GameStop
@@ -16,7 +15,7 @@ type GameEvent =
     | TickEvent
 
 let ui = SnakeUI(2., 20., 20)
-let timer = new Timer(2000., AutoReset=true)
+let timer = new Timer(500., AutoReset=true)
 
 let drawBoard board =
     ui.Redraw (
