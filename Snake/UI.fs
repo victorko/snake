@@ -11,6 +11,7 @@ type Key = KeyUp | KeyDown | KeyLeft | KeyRight | KeySpace
 type Shape =
     | GreenSquare of int * int
     | RedCircle of int * int
+    | Text of string
 
 [<AllowNullLiteral>]
 type SnakeCanvas(padding, cellSize, size) =
@@ -42,6 +43,12 @@ type SnakeCanvas(padding, cellSize, size) =
             | RedCircle (x, y) -> 
                 let rect = Rect(coord x, coord y, cellSize, cellSize)
                 context.FillRectangle(SolidColorBrush(Colors.Red), rect, float32 (cellSize / 2.))
+            | Text text ->
+                let formattedText = 
+                    FormattedText(
+                        Text = text
+                    )
+                context.DrawText(SolidColorBrush(Colors.Black), Point(10., 10.), formattedText)
 
         List.iter drawShape shapes
 

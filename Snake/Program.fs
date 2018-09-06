@@ -50,7 +50,7 @@ let handleStepResult stepResult =
         drawBoard board
         GameContinue board
     | Stop score ->
-        ui.Redraw [] //todo
+        ui.Redraw [Text ("Score: " + score.ToString())] //todo
         GameStop
 
 let turn board key =
