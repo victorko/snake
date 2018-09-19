@@ -4,6 +4,21 @@ open Fable.Core
 open Fable.Core.JsInterop
 open Fable.Import
 
+open Snake.Core.Driver
+
+let createTimer interval = 
+    { 
+        new ITimer with
+        member this.Start () = ()
+        member this.Stop () = ()
+    }
+
+let createCanvas size = 
+    {
+        new ICanvas with
+        member this.Redraw shapes = ()
+    }
+
 let init() =
     let canvas = Browser.document.getElementsByTagName_canvas().[0]
     canvas.width <- 1000.
