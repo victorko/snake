@@ -60,6 +60,7 @@ let gameCycle (timer: ITimer) (canvas: ICanvas) state event =
             drawBoard board
             GameContinue board
         | Stop score ->
+            timer.Stop()
             canvas.Redraw [Text ("SCORE: " + score.ToString())]
             GameStop
 
