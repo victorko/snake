@@ -24,7 +24,7 @@ let drawShape (ctx: Browser.CanvasRenderingContext2D) =
         ctx.fill ()
         ctx.closePath ()
     | Text text ->
-        ctx.font <- "24px serif"
+        ctx.font <- "24px Impact"
         let metrics = ctx.measureText text
         let x, y = (width - metrics.width) / 2., (height - 24.) / 2.
         ctx.fillStyle <- !^"black"
