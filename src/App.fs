@@ -60,15 +60,13 @@ let init() =
 
     let mutable state = GameStop
 
-    let rec timer = 
-        createTimer 500 <|
-            fun () -> state <- gameCycle timer redraw state TickEvent
+    let rec onTimer () = state <- gameCycle timer redraw state TickEvent
+    and timer = createTimer 500 onTimer
 
     let onKey keyCode =
         match eventFromKey keyCode with
         | Some evt -> state <- gameCycle timer redraw state (KeyEvent evt)
         | None -> ()
-
     Browser.document.addEventListener_keydown (fun e -> onKey e.keyCode)
 
     drawShape ctx (Text "<Space> - start/pause  ←↑↓→ - turns")
