@@ -1,6 +1,6 @@
-module Snake.Core.Driver
+module Snake.Driver
 
-open Snake.Core.Game
+open Snake.Game
 
 type Key = KeyUp | KeyDown | KeyLeft | KeyRight | KeySpace
 
@@ -22,13 +22,13 @@ type ITimer =
     abstract member Start: unit -> unit
     abstract member Stop: unit -> unit
 
-type ICanvas =
-    abstract member Redraw: Shape list -> unit
+//type ICanvas =
+//    abstract member Redraw: Shape list -> unit
 
-let gameCycle (timer: ITimer) (canvas: ICanvas) state event = 
+let gameCycle (timer: ITimer) redraw state event = 
 
     let drawBoard board =
-        canvas.Redraw (
+        redraw (
             List.map GreenSquare board.snake @  
             List.map RedCircle board.food)
 
@@ -61,7 +61,7 @@ let gameCycle (timer: ITimer) (canvas: ICanvas) state event =
             GameContinue board
         | Stop score ->
             timer.Stop()
-            canvas.Redraw [Text ("SCORE: " + score.ToString())]
+            redraw [Text ("SCORE: " + score.ToString())]
             GameStop
 
     let turn board key =
