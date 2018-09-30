@@ -22,9 +22,6 @@ type ITimer =
     abstract member Start: unit -> unit
     abstract member Stop: unit -> unit
 
-//type ICanvas =
-//    abstract member Redraw: Shape list -> unit
-
 let gameCycle (timer: ITimer) redraw state event = 
 
     let drawBoard board =

@@ -5,6 +5,8 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Snake.Driver
 
+let tickPeriod = 200
+
 let padding, cellSize, size = 2., 20., 20.
 
 let width = 3. * padding + (cellSize + padding) * float size
@@ -61,7 +63,7 @@ let init() =
     let mutable state = GameStop
 
     let rec onTimer () = state <- gameCycle timer redraw state TickEvent
-    and timer = createTimer 500 onTimer
+    and timer = createTimer tickPeriod onTimer
 
     let onKey keyCode =
         match eventFromKey keyCode with
